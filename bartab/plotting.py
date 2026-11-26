@@ -96,7 +96,7 @@ def volcano(
         ax=ax,
         x=x,
         y=y,
-        data=df.query("__row_index__.str.startswith(@control_prefix)"),
+        data=df.query("__index__.str.startswith(@control_prefix)"),
         scatter_opts={
             "facecolor": "dimgrey",
             "edgecolor": "none",
@@ -124,7 +124,7 @@ def volcano(
     )
     if highlight_barcodes is None:
         highlight_barcodes = []
-    for i, (idx, bc_df) in enumerate(df.query("__row_index__.isin(@highlight_barcodes)").groupby("__row_index__")):
+    for i, (idx, bc_df) in enumerate(df.query("__index__.isin(@highlight_barcodes)").groupby("__index__")):
         color = f"C{_avoid_color_collision(i + 2, [int(spike_color[1:]), 7, 8])}"
         ax = scatter(
             ax=ax,
@@ -460,7 +460,7 @@ def dose_response(
         [fitnesses]
         .reset_index()
         .melt(
-            id_vars="__row_index__",
+            id_vars="__index__",
             var_name="_param_name",
             value_name="param_value",
         )
@@ -469,7 +469,7 @@ def dose_response(
             _concentration=lambda x: x["_param_name"].str.split("@").str[-1].astype(float),
         )
         .pivot(
-            index=["__row_index__", "_concentration"],
+            index=["__index__", "_concentration"],
             columns="param_name",
             values="param_value",
         )
@@ -480,7 +480,7 @@ def dose_response(
     for i, (barcode_name, bc_df) in enumerate(
         fitness_df
         .sort_values("_concentration")
-        .groupby("__row_index__")
+        .groupby("__index__")
     ):
         if barcode_name == adata.uns["spike"]:
             line_args = {
