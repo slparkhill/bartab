@@ -94,12 +94,6 @@ class HillFitnessModel(NonLinear):
     ):
         if param_names is None:
             param_names = ["log_ic50", "bottom", "h", "top"][:n_params]
-        zero_mask = concentration == 0.
-        if zero_mask.any():
-            valid = ~zero_mask
-            y, x, weights, concentration = (
-                arr[valid] for arr in (y, x, weights, concentration)
-            )
         log_c = np.log(concentration)
         if init_params is None:
             fitness_by_conc = self._per_concentration_fitness(y, x, weights, log_c)

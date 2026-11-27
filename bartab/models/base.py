@@ -72,17 +72,23 @@ class Model(ABC):
         n_orig = len(y)
         if valid is None:
             valid = np.ones_like(y, dtype=bool)
+        
+        concentration = kwargs.get('concentration', None)
+        if concentration is not None:
+            kwargs.pop('concentration')
+            zero_mask = concentration == 0.
+            if zero_mask.any():
+                valid = valid & ~zero_mask
+
+            concentration = concentration[valid]
+            kwargs = {"concentration": concentration}
+
         y = y[valid]
         x = x[valid]
         if weights is not None:
             weights = np.asarray(weights)[valid]
         weights = self.calculate_weights(y, weights)
 
-        concentration = kwargs.get('concentration', None)
-        if concentration is not None:
-            kwargs.pop('concentration')
-            concentration = concentration[valid]
-            kwargs = {"concentration": concentration}
 
         betas, cis, ses, ps, preds, other = self._fit(y, x, weights=weights, param_names=param_names, **kwargs)
 
